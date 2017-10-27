@@ -1,0 +1,1 @@
+Correr con flag -lstdc++, ej: gcc main.cpp -lstdc++ -o test
