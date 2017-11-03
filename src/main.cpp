@@ -252,7 +252,7 @@ int main(int argc, char const *argv[]) {
                         cout << "+4 ";
                         break;
                     default:
-                        cout << num;
+                        cout << num_aux;
                 }
                 cout << "\n";
                 i++;
