@@ -91,6 +91,32 @@ int main(int argc, char const *argv[]) {
     }
 
 
+    // Seleccionas pipes
+    int salir = 0;
+    int * pipeRead = (int *)malloc(sizeof(int)*2);
+    int * pipeWrite = (int *)malloc(sizeof(int)*2);
+
+    if (n_jugador == 1) {
+        pipeRead = pipeDtoA;
+        pipeWrite = pipeAtoB;
+    }
+    else if (n_jugador == 2) {
+        pipeRead = pipeAtoB;
+        pipeWrite = pipeBtoC;
+    }
+    else if (n_jugador == 3) {
+        pipeRead = pipeBtoC;
+        pipeWrite = pipeCtoD;
+    }
+    else if (n_jugador == 4){
+        pipeRead = pipeCtoD;
+        pipeWrite = pipeDtoA;
+    }
+    else {
+        cout << "Error seleccionando al hijo \n" << endl;
+        salir = 1;
+    }
+
     // Condiciones iniciales
     if (n_jugador == 4) {
         close(pipeDtoA[0]);
@@ -99,41 +125,25 @@ int main(int argc, char const *argv[]) {
 
     int estado_turno;
     cout << "***n_jugador:*** " << n_jugador << "\n";
-    while (true) {
-        sleep(1);
-
+    while (!salir) {
         // Leer del pipe correspondiente
-        if (n_jugador == 1) {
-            close(pipeDtoA[1]);
-            read(pipeDtoA[0], turno, 1);
-
-        }
-        else if (n_jugador == 2) {
-            close(pipeAtoB[1]);
-            read(pipeAtoB[0], turno, 1);
-        }
-        else if (n_jugador == 3) {
-            close(pipeBtoC[1]);
-            read(pipeBtoC[0], turno, 1);
-        }
-        else if (n_jugador == 4){
-            close(pipeCtoD[1]);
-            read(pipeCtoD[0], turno, 1);
-        }
-        else {
-            cout << "Error seleccionando al hijo \n" << endl;
-            break;
-        }
-        
+        close(pipeRead[1]);
+        read(pipeRead[0], turno, 1);
         estado_turno = atoi(turno);
 
-        cout << "n_jugador: " << n_jugador << "\n";
+        // Si le toca al jugador
+        if (estado_turno == 1) {
+            cout << "n_jugador: " << n_jugador << "\n";
+            close(pipeWrite[0]);
+            write(pipeWrite[1], "1", 1);
+        }
         
         
     }
     
     
-
+    free(pipeRead);
+    free(pipeWrite);
     hand.borrar();
 
     return 0;

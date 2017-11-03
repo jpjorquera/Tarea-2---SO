@@ -124,7 +124,7 @@ public:
     void borrar() {
         cartas.clear();
     };
-    void primera() {
+    /*void primera() {
         int i=0;
         for (auto v : cartas) {
             cout << "Color: " << v.getColor() << "\n";
@@ -132,5 +132,5 @@ public:
             i++;
         }
         cout << "Total " << i << "\n";
-    };
+    };*/
 };
