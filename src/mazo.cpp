@@ -13,10 +13,16 @@ public:
     };
     int getNum() {
         return numero;
-    }
+    };
     int getColor() {
         return color;
-    }
+    };
+    void setNum(int num) {
+    	numero = num;
+    };
+    void setColor(int col){
+    	color = col;
+    };
 };
 
 class Mazo {

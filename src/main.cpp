@@ -1,7 +1,7 @@
 #include<iostream>
 #include <unistd.h>
 #include <sys/mman.h>
-#include <string.h>
+#include <string>
 #include "./mazo.cpp"
 using namespace std;
 
@@ -60,6 +60,10 @@ int main(int argc, char const *argv[]) {
     // Enviar mazo a memoria compartida
     Mazo * shared = (Mazo *)mmap(NULL, sizeof(Carta)*108+sizeof(Mazo), PROT_READ|PROT_WRITE, MAP_SHARED|MAP_ANONYMOUS, -1, 0);
     (* shared) = mazo;
+    // Carta actual en memoria compartida
+    Carta * last_card = (Carta *)mmap(NULL, sizeof(Carta), PROT_READ|PROT_WRITE, MAP_SHARED|MAP_ANONYMOUS, -1, 0);
+    last_card->setNum(-1);
+    last_card->setColor(-1);
     
     // Manejo de pipes
     char turno[1];
@@ -119,13 +123,36 @@ int main(int argc, char const *argv[]) {
 
     // Condiciones iniciales
     if (n_jugador == 4) {
+        sleep(1);
+        // Primera carta
+        cout << "Carta inicial: \n";
+        Carta inicial = shared->sacar();
+        int col = inicial.getColor();
+        int num = inicial.getNum();
+
+        // Actualizar ultima jugada
+        last_card->setNum(num);
+        last_card->setColor(col);
+
+        // Comunicar jugada
+        /*string play;
+        if (num>=10){
+            play = to_string(col)+to_string(num);
+        }
+        else {
+            play = to_string(col)+"0"+to_string(num);
+        }
+        close(pipeJugada[0]);
+        write(pipeJugada[1], play.c_str(), 3);*/
+
+        // Comunicar turno
         close(pipeDtoA[0]);
-        write(pipeDtoA[1] ,"1", 1); 
+        write(pipeDtoA[1] ,"1", 1);
     }
 
     int estado_turno;
-    cout << "***n_jugador:*** " << n_jugador << "\n";
     while (!salir) {
+        sleep(1);
         // Leer del pipe correspondiente
         close(pipeRead[1]);
         read(pipeRead[0], turno, 1);
@@ -133,7 +160,140 @@ int main(int argc, char const *argv[]) {
 
         // Si le toca al jugador
         if (estado_turno == 1) {
-            cout << "n_jugador: " << n_jugador << "\n";
+            // Leer jugada
+            /*string play;
+            char play_aux[3];
+            close(pipeJugada[1]);
+            read(pipeJugada[0], play_aux, 3);
+            play = play_aux;
+            cout << "The play is: " << play << "\n" << endl;
+            int col = stoi(play.substr(0, 1));
+            int num = stoi(play.substr(1, 3));*/
+            int col = last_card->getColor();
+            int num = last_card->getNum();
+            switch (col) {
+                case azul:
+                    cout << "[Azul] " ;
+                    break;
+                case rojo:
+                    cout << "[Rojo] ";
+                    break;
+                case verde:
+                    cout << "[Verde] ";
+                    break;
+                case amarillo:
+                    cout << "[Amarillo] ";
+                    break;
+                case negro:
+                    cout << "[Negro] ";
+            }
+            switch (num) {
+                case mas2:
+                    cout << "+2 ";
+                    break;
+                case reversa:
+                    cout << "Reversa ";
+                    break;
+                case salto:
+                    cout << "Salto ";
+                    break;
+                case colores:
+                    cout << "Cambio color ";
+                    break;
+                case mas4:
+                    cout << "+4 ";
+                    break;
+                default:
+                    cout << num;
+            }
+            cout << "\n" << endl;
+
+            cout << "*** Turno del jugador número " << n_jugador << " ***\n\n";
+
+            // Mostrar mano
+            cout << "Sus cartas actuales son: \n" << endl;
+            list<Carta>::iterator it;
+            int i = 1;
+            for (it = hand.cartas.begin(); it != hand.cartas.end(); it++) {
+                Carta carta_actual = *it;
+                cout << "(" << i << ") ";
+                int col_aux = carta_actual.getColor();
+                int num_aux = carta_actual.getNum();
+                switch (col_aux) {
+                    case azul:
+                        cout << "[Azul] " ;
+                        break;
+                    case rojo:
+                        cout << "[Rojo] ";
+                        break;
+                    case verde:
+                        cout << "[Verde] ";
+                        break;
+                    case amarillo:
+                        cout << "[Amarillo] ";
+                        break;
+                    case negro:
+                        cout << "[Negro] ";
+                }
+                switch (num_aux) {
+                    case mas2:
+                        cout << "+2 ";
+                        break;
+                    case reversa:
+                        cout << "Reversa ";
+                        break;
+                    case salto:
+                        cout << "Salto ";
+                        break;
+                    case colores:
+                        cout << "Cambio color ";
+                        break;
+                    case mas4:
+                        cout << "+4 ";
+                        break;
+                    default:
+                        cout << num;
+                }
+                cout << "\n";
+                i++;
+            }
+            i--;
+            cout << endl;
+
+            // Pedir jugada
+            while (true) {
+                int validar_jugada = 1;
+                cout << "Elija el número de la opción a jugar:\n";
+                string respuesta;
+                getline(cin, respuesta);
+                // Verificar tamaño
+                if (respuesta.length() > 3) {
+                    validar_jugada = 0;
+                }
+                else {
+                    int opcion;
+                    // Verificar que sea número
+                    try {
+                        opcion = stoi(respuesta);
+                    }
+                    catch (...){
+                        validar_jugada = 0;
+                    }
+                    // Verificar rango
+                    if (opcion <= 0 || opcion > i) {
+                        validar_jugada = 0;
+                    }
+                }
+                if (!validar_jugada) {
+                    cout << "Jugada inválida, escoja nuevamente \n\n";
+                    continue;
+                }
+
+
+            }
+
+
+
             close(pipeWrite[0]);
             write(pipeWrite[1], "1", 1);
         }
@@ -145,6 +305,10 @@ int main(int argc, char const *argv[]) {
     free(pipeRead);
     free(pipeWrite);
     hand.borrar();
+    if (pid != 0) {
+        munmap(shared, sizeof(Carta)*108+sizeof(Mazo));
+        munmap(last_card, sizeof(Carta));
+    }
 
     return 0;
 }
