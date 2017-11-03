@@ -124,6 +124,15 @@ public:
         cartas.pop_back();
         return card;
     };
+    Carta sacar(int pos) {
+    	list<Carta>::iterator it = cartas.begin();
+    	for (int i = 0; i<pos; i++) {
+    		it++;
+    	}
+    	list<Carta> aux_carta;
+    	aux_carta.splice(aux_carta.begin(), cartas, it);
+        return aux_carta.back();
+    };
     int largo() {
         return cartas.size();
     };

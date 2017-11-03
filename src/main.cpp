@@ -257,7 +257,7 @@ int main(int argc, char const *argv[]) {
                 cout << "\n";
                 i++;
             }
-            i--;
+            cout << "(" << i << ") Robar carta \n"; 
             cout << endl;
 
             // Pedir jugada
@@ -265,18 +265,18 @@ int main(int argc, char const *argv[]) {
                 int validar_jugada = 1;
                 cout << "Elija el número de la opción a jugar:\n";
                 string respuesta;
+                int opcion;
                 getline(cin, respuesta);
                 // Verificar tamaño
                 if (respuesta.length() > 3) {
                     validar_jugada = 0;
                 }
                 else {
-                    int opcion;
                     // Verificar que sea número
                     try {
                         opcion = stoi(respuesta);
                     }
-                    catch (...){
+                    catch (...) {
                         validar_jugada = 0;
                     }
                     // Verificar rango
@@ -285,18 +285,101 @@ int main(int argc, char const *argv[]) {
                     }
                 }
                 if (!validar_jugada) {
-                    cout << "Jugada inválida, escoja nuevamente \n\n";
+                    cout << "Opción inválida, escoja nuevamente \n\n";
                     continue;
                 }
-
-
+                // Caso de robar carta
+                if (opcion == i) {
+                    cout << "Robando carta... \n";
+                    Carta robada = shared->sacar();
+                    int col_aux = robada.getColor();
+                    int num_aux = robada.getNum();
+                    switch (col_aux) {
+                        case azul:
+                            cout << "[Azul] " ;
+                            break;
+                        case rojo:
+                            cout << "[Rojo] ";
+                            break;
+                        case verde:
+                            cout << "[Verde] ";
+                            break;
+                        case amarillo:
+                            cout << "[Amarillo] ";
+                            break;
+                        case negro:
+                            cout << "[Negro] ";
+                    }
+                    switch (num_aux) {
+                        case mas2:
+                            cout << "+2 ";
+                            break;
+                        case reversa:
+                            cout << "Reversa ";
+                            break;
+                        case salto:
+                            cout << "Salto ";
+                            break;
+                        case colores:
+                            cout << "Cambio color ";
+                            break;
+                        case mas4:
+                            cout << "+4 ";
+                            break;
+                        default:
+                            cout << num_aux;
+                    }
+                    cout << "\n" << endl;
+                }
+                // Caso de jugar carta
+                else {
+                    // Sacar carta de la mano
+                    cout << "Usted jugó: \n";
+                    Carta elegida = hand.sacar(opcion-1);
+                    int col_aux = elegida.getColor();
+                    int num_aux = elegida.getNum();
+                    switch (col_aux) {
+                        case azul:
+                            cout << "[Azul] " ;
+                            break;
+                        case rojo:
+                            cout << "[Rojo] ";
+                            break;
+                        case verde:
+                            cout << "[Verde] ";
+                            break;
+                        case amarillo:
+                            cout << "[Amarillo] ";
+                            break;
+                        case negro:
+                            cout << "[Negro] ";
+                    }
+                    switch (num_aux) {
+                        case mas2:
+                            cout << "+2 ";
+                            break;
+                        case reversa:
+                            cout << "Reversa ";
+                            break;
+                        case salto:
+                            cout << "Salto ";
+                            break;
+                        case colores:
+                            cout << "Cambio color ";
+                            break;
+                        case mas4:
+                            cout << "+4 ";
+                            break;
+                        default:
+                            cout << num_aux;
+                    }
+                    cout << "\n" << endl;
+                }
             }
-
-
-
+        }
             close(pipeWrite[0]);
             write(pipeWrite[1], "1", 1);
-        }
+        
         
         
     }
