@@ -56,25 +56,13 @@ int main(int argc, char const *argv[]) {
 
     // Desordenar mazo
     mazo.randomizar();
-    mazo.primera();
-    cout << "Size actual = " << mazo.getSize() << "\n " << endl;
-
-    // Crear manos
-    Mano hand = Mano();
-    for (int i=0; i<7; i++){
-        Carta carta_actual = mazo.sacar();
-        hand.insertar(carta_actual);
-    }
-
-    hand.primera();
-    mazo.primera();
-    cout << "Size actual = " << mazo.getSize() << "\n " << endl;
 
     // Enviar mazo a memoria compartida
-    // Lista_cartas * shared = (Lista_cartas *)mmap(NULL, sizeof(Carta)*500+sizeof(Lista_cartas), PROT_READ|PROT_WRITE, MAP_SHARED|MAP_ANONYMOUS, -1, 0);
-
+    Mazo * shared = (Mazo *)mmap(NULL, sizeof(Carta)*108+sizeof(Mazo), PROT_READ|PROT_WRITE, MAP_SHARED|MAP_ANONYMOUS, -1, 0);
+    (* shared) = mazo;
+    
     // Crear hijos
-    /*int pid = getpid();
+    int pid = getpid();
     unsigned short n_jugador;
     for (n_jugador = 4; n_jugador > 1; n_jugador--) {
         pid = fork();
@@ -83,8 +71,24 @@ int main(int argc, char const *argv[]) {
         }
     }
 
-    cout << "Soy el proceso: " << pid << " y el jugador n: " << n_jugador << "\n";*/
-    //printf("Soy el proceso: %d\n", pid);
+    cout << "Soy el proceso: " << pid << " y el jugador n: " << n_jugador << "\n";
+    printf("Soy el proceso: %d\n", pid);
+
+    // Crear manos
+    Mano hand = Mano();
+    for (int i=0; i<7; i++){
+        Carta carta_actual = shared->sacar();
+        hand.insertar(carta_actual);
+    }
+
+    //hand.primera();
+    if (pid != 0){
+        sleep(3);
+        shared->primera();
+    }
+
+    
+    
 
 
     return 0;
