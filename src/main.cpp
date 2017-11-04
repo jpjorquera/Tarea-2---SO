@@ -2,8 +2,9 @@
 #include <unistd.h>
 #include <sys/mman.h>
 #include <string>
-#include "./mazo.cpp"
-#include "./functions.cpp"
+//#include "./mazo.cpp"
+//#include "./functions.cpp"
+#include "../include/header.h"
 using namespace std;
 
 int main(int argc, char const *argv[]) {
@@ -131,16 +132,26 @@ int main(int argc, char const *argv[]) {
         last_card->setNum(num);
         last_card->setColor(col);
 
-        // Comunicar jugada
-        /*string play;
-        if (num>=10){
-            play = to_string(col)+to_string(num);
+        // Comunicar jugada codificada
+        string play;
+        if (num == reversa) {
+            play = "003";
         }
-        else {
-            play = to_string(col)+"0"+to_string(num);
+        else if (num == salto) {
+            play = "002";
         }
+        else if (num == mas2) {
+            play = "002";
+        }
+        else if (num == mas4) {
+            play = "904";
+        }
+        else if (num == colores) {
+            play = "000";
+        }
+        // Escribir jugada
         close(pipeJugada[0]);
-        write(pipeJugada[1], play.c_str(), 3);*/
+        write(pipeJugada[1], play.c_str(), 3);
 
         // Comunicar turno
         close(pipeDtoA[0]);
@@ -148,7 +159,7 @@ int main(int argc, char const *argv[]) {
     }
 
     int estado_turno;
-    char last_play[2];
+    int color_mas4;
     int estado_jugada;
     while (!salir) {
         sleep(1);
@@ -159,19 +170,41 @@ int main(int argc, char const *argv[]) {
 
         // Si le toca al jugador
         if (estado_turno == 1) {
-            // Leer jugada
-            /*string play;
-            char play_aux[3];
-            close(pipeJugada[1]);
-            read(pipeJugada[0], play_aux, 3);
-            play = play_aux;
-            cout << "The play is: " << play << "\n" << endl;
-            int col = stoi(play.substr(0, 1));
-            int num = stoi(play.substr(1, 3));*/
+            // Leer última jugada
             int col = last_card->getColor();
             int num = last_card->getNum();
 
             // Verificar estado de última jugada
+            if (col == negro || num == reversa || num == mas2 || num == salto) {
+                // Leer condiciones actuales
+                string play;
+                char play_aux[3];
+                close(pipeJugada[1]);
+                read(pipeJugada[0], play_aux, 3);
+                play = play_aux;
+                color_mas4 = stoi(play.substr(0, 1));
+                estado_jugada = stoi(play.substr(1, 3));
+
+                // Verificar jugada específica
+                if (num == salto) {
+                    estado_jugada--;
+                    if (estado_jugada == 1) {
+                        cout << "Saltando al jugador" << n_jugador <<"\n" << endl;
+                        close(pipeWrite[0]);
+                        write(pipeWrite[1], "001", 3);
+                        continue;
+                    }
+                }
+                else if (num == reversa) {
+                    estado_jugada--;
+                    if (estado_jugada>0) {
+                        play = "00" + to_string(estado_jugada);
+                        close(pipeWrite[0]);
+                        write(pipeWrite[1], "1", 1);
+                    }
+                }
+
+            }
             /*if (num == reversa) {
                 close(pipeJugada[1]);
                 read(pipeJugada[0], last_play, 2);
@@ -238,7 +271,7 @@ int main(int argc, char const *argv[]) {
                 cout << "\n";
                 i++;
             }
-            cout << "(" << i << ") Robar carta \n"; 
+            cout << "(" << i << ") Robar carta(s) \n"; 
             cout << endl;
 
             // Pedir jugada
