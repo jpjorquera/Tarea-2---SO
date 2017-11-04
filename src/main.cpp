@@ -3,11 +3,8 @@
 #include <sys/mman.h>
 #include <string>
 #include "./mazo.cpp"
+#include "./functions.cpp"
 using namespace std;
-
-// Definicion de tipos de cartas
-enum colores {azul, rojo, verde, amarillo, negro};
-enum tipo {mas2=10, reversa=11, salto=12, colores=13, mas4=14};
 
 int main(int argc, char const *argv[]) {
     // Crear mazo
@@ -151,6 +148,8 @@ int main(int argc, char const *argv[]) {
     }
 
     int estado_turno;
+    char last_play[2];
+    int estado_jugada;
     while (!salir) {
         sleep(1);
         // Leer del pipe correspondiente
@@ -171,43 +170,59 @@ int main(int argc, char const *argv[]) {
             int num = stoi(play.substr(1, 3));*/
             int col = last_card->getColor();
             int num = last_card->getNum();
-            switch (col) {
-                case azul:
-                    cout << "[Azul] " ;
-                    break;
-                case rojo:
-                    cout << "[Rojo] ";
-                    break;
-                case verde:
-                    cout << "[Verde] ";
-                    break;
-                case amarillo:
-                    cout << "[Amarillo] ";
-                    break;
-                case negro:
-                    cout << "[Negro] ";
+
+            // Verificar estado de última jugada
+            /*if (num == reversa) {
+                close(pipeJugada[1]);
+                read(pipeJugada[0], last_play, 2);
+                estado_jugada = atoi(last_play);
+                estado_jugada--;
+                // Si no me toca, saltar
+                if (estado_jugada) {
+                    if (estado_jugada >= 10) {
+                        *last_play = estado_jugada+'0';
+                    }
+                    else {
+                        last_play[0] = '0';
+                        last_play[1] = estado_jugada+'0';
+                    }
+                    // Actualizar jugador
+                    close(pipeJugada[0]);
+                    write(pipeJugada[1], last_play, 2);
+                    // Informar al siguiente
+                    close(pipeWrite[0]);
+                    write(pipeWrite[1], "1", 1);
+                }
             }
-            switch (num) {
-                case mas2:
-                    cout << "+2 ";
-                    break;
-                case reversa:
-                    cout << "Reversa ";
-                    break;
-                case salto:
-                    cout << "Salto ";
-                    break;
-                case colores:
-                    cout << "Cambio color ";
-                    break;
-                case mas4:
-                    cout << "+4 ";
-                    break;
-                default:
-                    cout << num;
+            else if (num == salto) {
+                close(pipeJugada[1]);
+                read(pipeJugada[0], last_play, 2);
+                estado_jugada = atoi(last_play);
+                estado_jugada--;
+                if (estado_jugada) {
+                    // Actualizar jugador
+                    close(pipeJugada[0]);
+                    write(pipeJugada[1], "01", 2);
+                    // Informar al siguiente
+                    close(pipeWrite[0]);
+                    write(pipeWrite[1], "1", 1);
+                }
             }
+            else if (num == mas2 || num == mas4) {
+                close(pipeJugada[1]);
+                read(pipeJugada[0], last_play, 2);
+                estado_jugada = atoi(last_play);
+            }*/
+
+
+
+            // Imprimir última jugada al jugador actual
+            showCards(col, num);
             cout << "\n" << endl;
 
+
+
+            // Avanzar al jugador actual
             cout << "*** Turno del jugador número " << n_jugador << " ***\n\n";
 
             // Mostrar mano
@@ -219,41 +234,7 @@ int main(int argc, char const *argv[]) {
                 cout << "(" << i << ") ";
                 int col_aux = carta_actual.getColor();
                 int num_aux = carta_actual.getNum();
-                switch (col_aux) {
-                    case azul:
-                        cout << "[Azul] " ;
-                        break;
-                    case rojo:
-                        cout << "[Rojo] ";
-                        break;
-                    case verde:
-                        cout << "[Verde] ";
-                        break;
-                    case amarillo:
-                        cout << "[Amarillo] ";
-                        break;
-                    case negro:
-                        cout << "[Negro] ";
-                }
-                switch (num_aux) {
-                    case mas2:
-                        cout << "+2 ";
-                        break;
-                    case reversa:
-                        cout << "Reversa ";
-                        break;
-                    case salto:
-                        cout << "Salto ";
-                        break;
-                    case colores:
-                        cout << "Cambio color ";
-                        break;
-                    case mas4:
-                        cout << "+4 ";
-                        break;
-                    default:
-                        cout << num_aux;
-                }
+                showCards(col_aux, num_aux);
                 cout << "\n";
                 i++;
             }
@@ -294,42 +275,10 @@ int main(int argc, char const *argv[]) {
                     Carta robada = shared->sacar();
                     int col_aux = robada.getColor();
                     int num_aux = robada.getNum();
-                    switch (col_aux) {
-                        case azul:
-                            cout << "[Azul] " ;
-                            break;
-                        case rojo:
-                            cout << "[Rojo] ";
-                            break;
-                        case verde:
-                            cout << "[Verde] ";
-                            break;
-                        case amarillo:
-                            cout << "[Amarillo] ";
-                            break;
-                        case negro:
-                            cout << "[Negro] ";
-                    }
-                    switch (num_aux) {
-                        case mas2:
-                            cout << "+2 ";
-                            break;
-                        case reversa:
-                            cout << "Reversa ";
-                            break;
-                        case salto:
-                            cout << "Salto ";
-                            break;
-                        case colores:
-                            cout << "Cambio color ";
-                            break;
-                        case mas4:
-                            cout << "+4 ";
-                            break;
-                        default:
-                            cout << num_aux;
-                    }
+                    showCards(col_aux, num_aux);
                     cout << "\n" << endl;
+
+
                 }
                 // Caso de jugar carta
                 else {
@@ -338,41 +287,7 @@ int main(int argc, char const *argv[]) {
                     Carta elegida = hand.sacar(opcion-1);
                     int col_aux = elegida.getColor();
                     int num_aux = elegida.getNum();
-                    switch (col_aux) {
-                        case azul:
-                            cout << "[Azul] " ;
-                            break;
-                        case rojo:
-                            cout << "[Rojo] ";
-                            break;
-                        case verde:
-                            cout << "[Verde] ";
-                            break;
-                        case amarillo:
-                            cout << "[Amarillo] ";
-                            break;
-                        case negro:
-                            cout << "[Negro] ";
-                    }
-                    switch (num_aux) {
-                        case mas2:
-                            cout << "+2 ";
-                            break;
-                        case reversa:
-                            cout << "Reversa ";
-                            break;
-                        case salto:
-                            cout << "Salto ";
-                            break;
-                        case colores:
-                            cout << "Cambio color ";
-                            break;
-                        case mas4:
-                            cout << "+4 ";
-                            break;
-                        default:
-                            cout << num_aux;
-                    }
+                    showCards(col_aux, num_aux);
                     cout << "\n" << endl;
                 }
             }
