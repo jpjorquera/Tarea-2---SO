@@ -2,6 +2,7 @@
 #include <unistd.h>
 #include <sys/mman.h>
 #include <string>
+#include <stdlib.h>
 #include "../include/header.h"
 using namespace std;
 
@@ -156,30 +157,31 @@ int main(int argc, char const *argv[]) {
         
 
         // Comunicar jugada codificada
-        // En orden: "Sentido + N_jugadores a saltar + Color cambiado + Más cartas acumuladas"
+        // En orden: "Estados de UNO x jugador +Sentido + 
+        //            N_jugadores a saltar + Color cambiado + Más cartas acumuladas"
         string play;
         if (num == reversa) {
-            play = "12000";
+            play = "000012000";
             cout << "Revirtiendo...\n" << endl;
         }
         else if (num == salto) {
-            play = "00902";
+            play = "000000902";
         }
         else if (num == mas2) {
-            play = "00902";
+            play = "000000902";
         }
         else if (num == mas4) {
-            play = "00904";
+            play = "000000904";
         }
         else if (num == colores) {
-            play = "00900";
+            play = "000000900";
         }
         else {
-            play = "00900";
+            play = "000000900";
         }
         // Escribir jugada
         close(pipeJugadaWrite[0]);
-        write(pipeJugadaWrite[1], play.c_str(), 5);
+        write(pipeJugadaWrite[1], play.c_str(), 9);
 
         // Comunicar turno inicial
         close(pipeDtoA[0]);
@@ -190,6 +192,7 @@ int main(int argc, char const *argv[]) {
     int color, sentido, n_reversa;
     int estado_jugada;
     string play;
+    int p1, p2, p3, p4;
     while (!salir) {
         //sleep(1);
 
@@ -213,23 +216,30 @@ int main(int argc, char const *argv[]) {
             string play;
             char play_aux[5];
             close(pipeJugadaRead[1]);
-            read(pipeJugadaRead[0], play_aux, 5);
+            read(pipeJugadaRead[0], play_aux, 9);
             play = play_aux;
+            cout << "lei play: "<<play<<endl;
+            // Estado de UNOs
+            p1 = stoi(play.substr(0,1));
+            p2 = stoi(play.substr(1,1));
+            p3 = stoi(play.substr(2,1));
+            p4 = stoi(play.substr(3,1));
             // Estado de jugada
-            sentido = stoi(play.substr(0, 1));
-            n_reversa = stoi(play.substr(1, 1));
-            color = stoi(play.substr(2, 1));
-            estado_jugada = stoi(play.substr(3, 2));
+            sentido = stoi(play.substr(4, 1));
+            n_reversa = stoi(play.substr(5, 1));
+            color = stoi(play.substr(6, 1));
+            estado_jugada = stoi(play.substr(7, 2));
             // Llevar cuenta de tamaño
             int tam = shared->getSize();
             // Avanzar al jugador
             if (estado_turno != 2 && sentido==1 && n_reversa > 0) {
                 n_reversa--;
-                play = to_string(sentido)+to_string(n_reversa)+to_string(color)+"0"+to_string(estado_jugada);
+                play = to_string(p1)+to_string(p2)+to_string(p3)+to_string(p4)+
+                    to_string(sentido)+to_string(n_reversa)+to_string(color)+to_string(0)+to_string(estado_jugada);
 
                 // Pasar jugada
                 close(pipeJugadaWrite[0]);
-                write(pipeJugadaWrite[1], play.c_str(), 5);
+                write(pipeJugadaWrite[1], play.c_str(), 9);
                 // Avanzar jugador
                 close(pipeWrite[0]);
                 write(pipeWrite[1], "1", 1);
@@ -248,9 +258,10 @@ int main(int argc, char const *argv[]) {
                 if (estado_jugada == 1) {
                     cout << "--- Saltando al jugador " << n_jugador <<" ---\n" << endl;
                     // Actualizar jugada
-                    play = to_string(sentido)+to_string(n_reversa)+to_string(color)+"00";
+                    play = to_string(p1)+to_string(p2)+to_string(p3)+to_string(p4)+
+                            to_string(sentido)+to_string(n_reversa)+to_string(color)+to_string(0)+to_string(0);
                     close(pipeJugadaWrite[0]);
-                    write(pipeJugadaWrite[1], play.c_str(), 5);
+                    write(pipeJugadaWrite[1], play.c_str(), 9);
                     // Pasar jugador
                     close(pipeWrite[0]);
                     write(pipeWrite[1], "1", 1);
@@ -278,12 +289,18 @@ int main(int argc, char const *argv[]) {
                         salir = 1;
                         break;
                     }
+                    // Devolver estado de UNO
+                    if (!p1 && n_jugador==1) { p1 = 0; }
+                    if (!p2 && n_jugador==2) { p2 = 0; }
+                    if (!p3 && n_jugador==3) { p3 = 0; }
+                    if (!p4 && n_jugador==4) { p4 = 0; }
                     hand.insertar(robada);
                     cout << "--- Saltando el turno ---\n\n";
                     // Actualizar jugada
-                    play = to_string(sentido)+to_string(n_reversa)+to_string(color)+"00";
+                    play = to_string(p1)+to_string(p2)+to_string(p3)+to_string(p4)+
+                            to_string(sentido)+to_string(n_reversa)+to_string(color)+to_string(0)+to_string(0);
                     close(pipeJugadaWrite[0]);
-                    write(pipeJugadaWrite[1], play.c_str(), 5);
+                    write(pipeJugadaWrite[1], play.c_str(), 9);
                     // Pasar jugador
                     close(pipeWrite[0]);
                     write(pipeWrite[1], "1", 1);
@@ -332,12 +349,18 @@ int main(int argc, char const *argv[]) {
                         break;
                     }
                     hand.insertar(robada);
+                    // Devolver estado de UNO
+                    if (!p1 && n_jugador==1) { p1 = 0; }
+                    if (!p2 && n_jugador==2) { p2 = 0; }
+                    if (!p3 && n_jugador==3) { p3 = 0; }
+                    if (!p4 && n_jugador==4) { p4 = 0; }
 
                     cout << "--- Saltando el turno ---\n\n";
                     // Actualizar jugada
-                    play = to_string(sentido)+to_string(n_reversa)+to_string(color)+"00";
+                    play = to_string(p1)+to_string(p2)+to_string(p3)+to_string(p4)+
+                        to_string(sentido)+to_string(n_reversa)+to_string(color)+to_string(0)+to_string(0);
                     close(pipeJugadaWrite[0]);
-                    write(pipeJugadaWrite[1], play.c_str(), 5);
+                    write(pipeJugadaWrite[1], play.c_str(), 9);
                     // Pasar jugador
                     close(pipeWrite[0]);
                     write(pipeWrite[1], "1", 1);
@@ -349,6 +372,25 @@ int main(int argc, char const *argv[]) {
             cout << "****************************************\n";
             cout << "****** Turno del jugador número " << n_jugador << " ******\n";
             cout << "****************************************\n\n";
+            // Imprimir estados de UNOs
+            int uno = 0;
+            if (p1 && n_jugador!=1) {
+                cout << "Al jugador 1 le queda una carta.\n";
+                uno = 1;
+            }
+            if (p2 && n_jugador!=2) {
+                cout << "Al jugador 2 le queda una carta.\n";
+                uno = 1;
+            }
+            if (p3 && n_jugador!=3) {
+                cout << "Al jugador 3 le queda una carta.\n";
+                uno = 1;
+            }
+            if (p4 && n_jugador!=4) {
+                cout << "Al jugador 4 le queda una carta.\n";
+                uno = 1;
+            }
+            if (uno) { cout << endl; }
             // Imprimir cartas restantes
             cout << "Quedan "<<tam<<" carta(s).\n\n";
 
@@ -449,6 +491,12 @@ int main(int argc, char const *argv[]) {
                         salir = 1;
                         break;
                     }
+                    // Devolver estado de UNO
+                    if (!p1 && n_jugador==1) { p1 = 0; }
+                    if (!p2 && n_jugador==2) { p2 = 0; }
+                    if (!p3 && n_jugador==3) { p3 = 0; }
+                    if (!p4 && n_jugador==4) { p4 = 0; }
+                    
                     int col_aux = robada.getColor();
                     int num_aux = robada.getNum();
                     hand.insertar(robada);
@@ -466,6 +514,21 @@ int main(int argc, char const *argv[]) {
                                 estado_robo = 0;
                                 last_card->setColor(col_aux);
                                 last_card->setNum(num_aux);
+                                if (hand.largo()==1){
+                                    if (n_jugador == 1) {
+                                        p1 = 1;
+                                    }
+                                    else if (n_jugador == 2) {
+                                        p2 = 1;
+                                    }
+                                    else if (n_jugador == 3) {
+                                        p3 = 1;
+                                    }
+                                    else if (n_jugador == 4) {
+                                        p4 = 1;
+                                    }
+                                    cout << "|||   Jugador "<<n_jugador<<": UNO!   |||\n\n";
+                                }
                                 break;
                             }
                             else if (opcion == 2){
@@ -563,7 +626,7 @@ int main(int argc, char const *argv[]) {
                     // Verificar carta jugada
                     if (!checkRight(col, num, col_aux, num_aux) && estado_turno!=2 && color!=8){
                         // Carta errónea, devolviendo
-                        cout << "-X-X-X- Carta equivocada, debe robar -X-X-X-\n";
+                        cout << "-X-X-X- Carta equivocada, debe robar -X-X-X-\n\n";
                         // Devolver carta
                         cout << "Devolviéndola a la mano. \n";
                         hand.insertar(elegida);
@@ -649,13 +712,32 @@ int main(int argc, char const *argv[]) {
                                 }
                             }
                         }
+                        // Actualizar estado UNO
+                        if (hand.largo()==1){
+                            if (n_jugador == 1) {
+                                p1 = 1;
+                            }
+                            else if (n_jugador == 2) {
+                                p2 = 1;
+                            }
+                            else if (n_jugador == 3) {
+                                p3 = 1;
+                            }
+                            else if (n_jugador == 4) {
+                                p4 = 1;
+                            }
+                            cout << "|||   Jugador "<<n_jugador<<": UNO!   |||\n\n";
+                        }
                     }
                 }
                 // Pasar estado de jugada
-                play = to_string(sentido)+to_string(n_reversa)+to_string(color)+'0'+to_string(estado_jugada);
-                //cout << "escribiendo play al final: " << play << endl;
+                if (estado_jugada < 0){
+                    estado_jugada = 0;
+                }
+                play = to_string(p1)+to_string(p2)+to_string(p3)+to_string(p4)+
+                        to_string(sentido)+to_string(n_reversa)+to_string(color)+to_string(0)+to_string(estado_jugada);
                 close(pipeJugadaWrite[0]);
-                write(pipeJugadaWrite[1], play.c_str(), 5);
+                write(pipeJugadaWrite[1], play.c_str(), 9);
                 // Avanzar jugador
                 close(pipeWrite[0]);
                 write(pipeWrite[1], "1", 1);
@@ -668,7 +750,7 @@ int main(int argc, char const *argv[]) {
     write(pipeWrite[1], "3", 1);
     
     // Liberar memoria
-    /*cout << "Liberando" << endl;
+    /*cout << "Liberando en jugador "<<n_jugador << endl;
     free(pipeRead);
     cout << "pipeReadLiberado" << endl;
     free(pipeWrite);
@@ -681,6 +763,7 @@ int main(int argc, char const *argv[]) {
     cout << "mano borrada" << endl;
     // Liberar memoria compartida*/
     if (pid != 0) {
+        cout << endl;
         munmap(shared, sizeof(Carta)*108+sizeof(Mazo));
         munmap(last_card, sizeof(Carta));
     }
