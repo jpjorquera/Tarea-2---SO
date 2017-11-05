@@ -63,3 +63,17 @@ int checkAvailable(Mano hand, int color_actual, int numero_actual) {
     }
 	return 0;
 }
+int checkRight(int color_actual, int numero_actual, int color_deseado, int num_deseado) {
+    if (color_deseado == negro) {
+        return 1;
+    }
+    else if (color_deseado == color_actual) {
+        return 1;
+    }
+    else if (num_deseado == numero_actual) {
+        return 1;
+    }
+    else {
+        return 0;
+    }
+}

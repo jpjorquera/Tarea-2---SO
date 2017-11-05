@@ -165,7 +165,7 @@ int main(int argc, char const *argv[]) {
         // En orden: "Sentido + N_jugadores a saltar + Color cambiado + Más cartas acumuladas"
         string play;
         if (num == reversa) {
-            play = "10003";
+            play = "12000";
             cout << "Revirtiendo..." << endl;
         }
         else if (num == salto) {
@@ -191,21 +191,22 @@ int main(int argc, char const *argv[]) {
     }
 
     int estado_turno;
-    int color_mas4, sentido, n_reversa;
+    int color, sentido, n_reversa;
     int estado_jugada;
+    string play;
     while (!salir) {
-        //sleep(1);
+        sleep(1);
 
         // Leer del pipe correspondiente
         close(pipeRead[1]);
         read(pipeRead[0], turno, 1);
         estado_turno = atoi(turno);
 
-        cout << "Lei mi turno y soy el jugador " << n_jugador << endl;
-        cout << " Lei estado de turno: " <<estado_turno<<endl;
+        cout << "\nLei mi turno y soy el jugador " << n_jugador << endl;
 
         // Si le toca al jugador
         if (estado_turno == 1 || estado_turno == 2) {
+            cout << "Entre a la jugada" << endl;
             // Leer última jugada
             int col = last_card->getColor();
             int num = last_card->getNum();
@@ -218,13 +219,18 @@ int main(int argc, char const *argv[]) {
             play = play_aux;
             // Estado de jugada
             sentido = stoi(play.substr(0, 1));
-            n_reversa = stoi(play.substr(1, 2));
-            color_mas4 = stoi(play.substr(2, 3));
-            estado_jugada = stoi(play.substr(3, 5));
+            cout << "sentido: " << sentido << endl;
+            n_reversa = stoi(play.substr(1, 1));
+            cout << "n_reversa actual: "<< n_reversa << endl;
+            color = stoi(play.substr(2, 1));
+            cout << "color actual: "<< color << endl;
+            estado_jugada = stoi(play.substr(3, 2));
+            cout << "estado jugada: "<< estado_jugada << endl;
             // Avanzar al jugador
             if (estado_turno != 2 && sentido==1 && n_reversa > 0) {
                 n_reversa--;
-                play = to_string(sentido)+to_string(n_reversa)+to_string(color_mas4)+to_string(estado_jugada);
+                play = to_string(sentido)+to_string(n_reversa)+to_string(color)+"0"+to_string(estado_jugada);
+
                 // Pasar jugada
                 close(pipeJugadaWrite[0]);
                 write(pipeJugadaWrite[1], play.c_str(), 5);
@@ -232,6 +238,12 @@ int main(int argc, char const *argv[]) {
                 close(pipeWrite[0]);
                 write(pipeWrite[1], "1", 1);
                 continue;
+            }
+            else {
+                // Resetear cantidad de saltos en reversa
+                if (estado_turno != 2 && sentido==1) {
+                    n_reversa = 2;
+                }
             }
             // Verificar jugada específica
             // Corresponde saltar
@@ -266,12 +278,6 @@ int main(int argc, char const *argv[]) {
                 }
             }
 
-
-
-            
-
-
-
             // Avanzar al jugador actual
             cout << "****************************************\n";
             cout << "****** Turno del jugador número " << n_jugador << " ******\n";
@@ -295,8 +301,18 @@ int main(int argc, char const *argv[]) {
                 cout << "\n";
                 i++;
             }
-            cout << "(" << i << ") Robar carta(s) \n"; 
+            // Verificar mano por cartas jugables
+            int tieneCartas = 1;
+            if (!checkAvailable(hand, col, num)) {
+                cout << "(" << i << ") Robar carta"; 
+                tieneCartas = 0;
+            }
+            else {
+                //i--;
+            }
             cout << endl;
+            
+            
 
             // Pedir jugada
             while (true) {
@@ -323,10 +339,12 @@ int main(int argc, char const *argv[]) {
                     }
                 }
                 if (!validar_jugada) {
-                    cout << "Opción inválida, escoja nuevamente \n\n";
+                    cout << "Opción inválida, escoja nuevamente. \n\n";
                     continue;
                 }
+
                 // Caso de robar carta
+                int estado_robo = 0;
                 if (opcion == i) {
                     cout << "Robando carta... \n";
                     Carta robada = shared->sacar();
@@ -334,12 +352,37 @@ int main(int argc, char const *argv[]) {
                     int num_aux = robada.getNum();
                     showCards(col_aux, num_aux);
                     cout << "\n" << endl;
-
+                    estado_robo = 1;
+                    // Dar opción
+                    if (checkRight(col, num, col_aux, num_aux)) {
+                        cout << "¿Desea jugarla ahora?\n(1) Si\n(2) No\n";
+                        while (true) {
+                            string respuesta;
+                            getline(cin, respuesta);
+                            opcion = stoi(respuesta);
+                            if (opcion == 1){
+                                estado_robo = 0;
+                                last_card->setColor(col_aux);
+                                last_card->setNum(num_aux);
+                                break;
+                            }
+                            else if (opcion == 2){
+                                hand.insertar(robada);
+                                estado_robo = 1;
+                                break;
+                            }
+                            else {
+                                cout << "Opción errónea, escoja nuevamente" << endl;
+                            }
+                        }
+                    }
+                    if (!estado_robo) {
+                        cout << "\nUsted jugó: \n";
+                        showCards(col_aux, num_aux);
+                        cout << "\n" << endl;
+                    }
 
                 }
-
-                // Verificar mano
-                
                 // Caso de jugar carta
                 else {
                     // Sacar carta de la mano
@@ -349,14 +392,36 @@ int main(int argc, char const *argv[]) {
                     int num_aux = elegida.getNum();
                     showCards(col_aux, num_aux);
                     cout << "\n" << endl;
+
+                    // Verificar carta jugada
+                    if (!checkRight(col, num, col_aux, num_aux)){
+                        // Carta errónea, devolviendo
+                        cout << "Carta equivocada, debe robar.\n";
+                        hand.insertar(elegida);
+                        cout << "Robando carta... \n";
+                        Carta robada = shared->sacar();
+                        int col_aux = robada.getColor();
+                        int num_aux = robada.getNum();
+                        showCards(col_aux, num_aux);
+                        cout << "\n" << endl;
+                    }
+                    else {
+                        last_card->setNum(num_aux);
+                        last_card->setColor(col_aux);
+                    }
                 }
+                // Pasar estado de jugada
+                cout << "color actual: " << color << endl;
+                play = to_string(sentido)+to_string(n_reversa)+to_string(color)+'0'+to_string(estado_jugada);
+                cout << "escribiendo play al final: " << play << endl;
+                close(pipeJugadaWrite[0]);
+                write(pipeJugadaWrite[1], play.c_str(), 5);
+                // Avanzar jugador
+                close(pipeWrite[0]);
+                write(pipeWrite[1], "1", 1);
+                break;
             }
         }
-            close(pipeWrite[0]);
-            write(pipeWrite[1], "1", 1);
-        
-        
-        
     }
     
     

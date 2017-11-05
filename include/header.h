@@ -64,6 +64,7 @@ public:
 // Funciones en functions
 void showCards(int color, int numero);
 int checkAvailable(Mano hand, int color_actual, int numero_actual);
+int checkRight(int color_actual, int numero_actual, int color_deseado, int num_deseado);
 
 
 #endif
