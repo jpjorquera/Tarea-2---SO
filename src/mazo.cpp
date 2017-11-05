@@ -1,7 +1,3 @@
-/*#include<iostream>
-#include <time.h>
-#include <list>
-using namespace std;*/
 #include "../include/header.h"
 
 // Métodos de Carta

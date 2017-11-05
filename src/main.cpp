@@ -2,8 +2,6 @@
 #include <unistd.h>
 #include <sys/mman.h>
 #include <string>
-//#include "./mazo.cpp"
-//#include "./functions.cpp"
 #include "../include/header.h"
 using namespace std;
 
@@ -222,7 +220,9 @@ int main(int argc, char const *argv[]) {
             color = stoi(play.substr(2, 1));
             estado_jugada = stoi(play.substr(3, 2));
             // Avanzar al jugador
+            cout << "estado_turno: " << estado_turno << " sentido: "<<sentido<<" n_reversa: "<<n_reversa<<endl;
             if (estado_turno != 2 && sentido==1 && n_reversa > 0) {
+                cout << "estado actual en reversa \n";
                 n_reversa--;
                 play = to_string(sentido)+to_string(n_reversa)+to_string(color)+"0"+to_string(estado_jugada);
 
@@ -256,23 +256,7 @@ int main(int argc, char const *argv[]) {
                     continue;
                 }
             }
-            // Cambiar sentido
-            else if (num == reversa && estado_turno!=2) {
-                estado_jugada--;
-                if (estado_jugada>0) {
-                    sentido = (sentido+1)%2;
-                    n_jugador = 4;
-                    play = to_string(sentido)+to_string(n_reversa)+ "00" + to_string(estado_jugada);
-                    // Actualizar jugada
-                    close(pipeJugadaWrite[0]);
-                    write(pipeJugadaWrite[1], play.c_str(), 5);
-                    // Pasar jugador
-                    close(pipeWrite[0]);
-                    write(pipeWrite[1], "1", 1);
-                    continue;
-                }
-            }
-            if (num == mas2) {
+            else if (num == mas2) {
                 estado_jugada--;
                 if (estado_jugada == 1) {
                     // Robar cartas
@@ -407,10 +391,12 @@ int main(int argc, char const *argv[]) {
                 // Caso de robar carta
                 int estado_robo = 0;
                 if (!tieneCartas && opcion == i) {
+                    // Sacar carta
                     cout << "Robando carta... \n";
                     Carta robada = shared->sacar();
                     int col_aux = robada.getColor();
                     int num_aux = robada.getNum();
+                    hand.insertar(robada);
                     showCards(col_aux, num_aux);
                     cout << "\n" << endl;
                     estado_robo = 1;
@@ -439,9 +425,11 @@ int main(int argc, char const *argv[]) {
                         }
                     }
                     if (!estado_robo) {
+                        // Actualizar carta jugada
                         cout << "\nUsted jugó: \n";
                         showCards(col_aux, num_aux);
                         cout << "\n" << endl;
+                        // Actualizar con cartas especiales
                         if (num_aux == mas2) {
                             estado_jugada = 2;
                         }
@@ -474,7 +462,7 @@ int main(int argc, char const *argv[]) {
                         else if (num_aux == salto) {
                             estado_jugada = 2;
                         }
-                        else if (num == reversa) {
+                        else if (num_aux == reversa) {
                             sentido = (sentido+1)%2;
                             n_reversa = 2;
                         }
@@ -536,7 +524,7 @@ int main(int argc, char const *argv[]) {
                         // Actualizar carta jugada
                         last_card->setNum(num_aux);
                         last_card->setColor(col_aux);
-                        color = col_aux;
+                        // Actualizar con cartas especiales
                         if (num_aux == mas2) {
                             estado_jugada = 2;
                         }
@@ -569,7 +557,7 @@ int main(int argc, char const *argv[]) {
                         else if (num_aux == salto) {
                             estado_jugada = 2;
                         }
-                        else if (num == reversa) {
+                        else if (num_aux == reversa) {
                             sentido = (sentido+1)%2;
                             n_reversa = 2;
                         }

@@ -1,11 +1,6 @@
 #include<iostream>
-//#include "./mazo.cpp"
 using namespace std;
 #include "../include/header.h"
-
-/*// Definicion de tipos de cartas
-enum colores {azul, rojo, verde, amarillo, negro};
-enum tipo {mas2=10, reversa=11, salto=12, colores=13, mas4=14};*/
 
 void showCards(int color, int numero) {
 	switch (color) {
