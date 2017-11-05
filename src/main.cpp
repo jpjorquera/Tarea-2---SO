@@ -85,16 +85,12 @@ int main(int argc, char const *argv[]) {
         }
     }
 
-    /*cout << "Soy el proceso: " << pid << " y el jugador n: " << n_jugador << "\n";
-    printf("Soy el proceso: %d\n\n", pid);*/
-
     // Crear manos
     Mano hand = Mano();
     for (int i=0; i<7; i++){
         Carta carta_actual = shared->sacar();
         hand.insertar(carta_actual);
     }
-
 
     // Seleccionas pipes para verificar turno y escribir jugada
     int salir = 0;
@@ -147,8 +143,8 @@ int main(int argc, char const *argv[]) {
         //**********************************//
         //**********************************//
         // Testeo
-        //num = reversa;
-        //col = azul;
+        num = mas4;
+        col = negro;
         //**********************************//
         //**********************************//
         //**********************************//
@@ -220,9 +216,7 @@ int main(int argc, char const *argv[]) {
             color = stoi(play.substr(2, 1));
             estado_jugada = stoi(play.substr(3, 2));
             // Avanzar al jugador
-            cout << "estado_turno: " << estado_turno << " sentido: "<<sentido<<" n_reversa: "<<n_reversa<<endl;
             if (estado_turno != 2 && sentido==1 && n_reversa > 0) {
-                cout << "estado actual en reversa \n";
                 n_reversa--;
                 play = to_string(sentido)+to_string(n_reversa)+to_string(color)+"0"+to_string(estado_jugada);
 
@@ -279,7 +273,11 @@ int main(int argc, char const *argv[]) {
             }
             else if (num == mas4) {
                 estado_jugada--;
-                if (estado_jugada == 1) {
+                if (estado_jugada == 1 || estado_turno==2) {
+                    // Pasar cualquier color a siguiente jugador
+                    if (estado_turno==2) {
+                        color = 8;
+                    }
                     // Robar cartas
                     cout << "Lo siento jugador " << n_jugador << ", la última carta fue +4.\n";
                     cout << "Robando 4 cartas... \n";
@@ -315,20 +313,27 @@ int main(int argc, char const *argv[]) {
             cout << "\n";
             // Verificar seleccion anterior de color
             if (num == colores || num == mas4) {
-                col = color;
-                cout << "El color actual es: ";
-                if (color == azul) {
-                    cout << "[Azul]\n";
+                // Si no es turno inicial
+                if (estado_turno != 2 && color != 8) {
+                    col = color;
+                    cout << "El color actual es: ";
+                    if (color == azul) {
+                        cout << "[Azul]\n";
+                    }
+                    if (color == amarillo) {
+                        cout << "[Amarillo]\n";
+                    }
+                    if (color == rojo) {
+                        cout << "[Rojo]\n";
+                    }
+                    if (color == verde) {
+                        cout << "[Verde]\n";
+                    }
                 }
-                if (color == amarillo) {
-                    cout << "[Amarillo]\n";
-                }
-                if (color == rojo) {
-                    cout << "[Rojo]\n";
-                }
-                if (color == verde) {
-                    cout << "[Verde]\n";
-                }       
+                // Turno inicial
+                else {
+                    cout << "Para elegir color, simplemente juegue la carta deseada.\n";
+                } 
             }
             cout <<  endl;
 
@@ -347,14 +352,13 @@ int main(int argc, char const *argv[]) {
             }
             // Verificar mano por cartas jugables
             int tieneCartas = 1;
-            if (!checkAvailable(hand, col, num)) {
+            if (!checkAvailable(hand, col, num) && estado_turno!=2) {
                 cout << "(" << i << ") Robar carta\n"; 
                 tieneCartas = 0;
             }
             else {
                 i--;
             }
-            //cout << "i al salir:" << i;
             cout << endl;
             
             
@@ -463,6 +467,7 @@ int main(int argc, char const *argv[]) {
                             estado_jugada = 2;
                         }
                         else if (num_aux == reversa) {
+                            cout << "Revirtiendo...\n" << endl;
                             sentido = (sentido+1)%2;
                             n_reversa = 2;
                         }
@@ -505,7 +510,7 @@ int main(int argc, char const *argv[]) {
                     cout << "\n" << endl;
 
                     // Verificar carta jugada
-                    if (!checkRight(col, num, col_aux, num_aux)){
+                    if (!checkRight(col, num, col_aux, num_aux) && estado_turno!=2){
                         // Carta errónea, devolviendo
                         cout << "-X-X-X- Carta equivocada, debe robar -X-X-X-\n";
                         // Devolver carta
@@ -558,6 +563,7 @@ int main(int argc, char const *argv[]) {
                             estado_jugada = 2;
                         }
                         else if (num_aux == reversa) {
+                            cout << "Revirtiendo...\n" << endl;
                             sentido = (sentido+1)%2;
                             n_reversa = 2;
                         }
