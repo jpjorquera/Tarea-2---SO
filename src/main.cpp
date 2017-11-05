@@ -169,22 +169,21 @@ int main(int argc, char const *argv[]) {
             cout << "Revirtiendo...\n" << endl;
         }
         else if (num == salto) {
-            play = "00002";
+            play = "00902";
         }
         else if (num == mas2) {
-            play = "00002";
+            play = "00902";
         }
         else if (num == mas4) {
             play = "00904";
         }
         else if (num == colores) {
-            play = "00000";
+            play = "00900";
         }
         else {
-            play = "00000";
+            play = "00900";
         }
         // Escribir jugada
-        cout << "Escribi play inicial: " << play.c_str() << endl;
         close(pipeJugadaWrite[0]);
         write(pipeJugadaWrite[1], play.c_str(), 5);
 
@@ -219,13 +218,9 @@ int main(int argc, char const *argv[]) {
             play = play_aux;
             // Estado de jugada
             sentido = stoi(play.substr(0, 1));
-            //cout << "sentido: " << sentido << endl;
             n_reversa = stoi(play.substr(1, 1));
-            //cout << "n_reversa actual: "<< n_reversa << endl;
             color = stoi(play.substr(2, 1));
-            //cout << "color actual: "<< color << endl;
             estado_jugada = stoi(play.substr(3, 2));
-            //cout << "estado jugada: "<< estado_jugada << endl;
             // Avanzar al jugador
             if (estado_turno != 2 && sentido==1 && n_reversa > 0) {
                 n_reversa--;
@@ -250,7 +245,7 @@ int main(int argc, char const *argv[]) {
             if (num == salto) {
                 estado_jugada--;
                 if (estado_jugada == 1) {
-                    cout << "Saltando al jugador " << n_jugador <<"\n" << endl;
+                    cout << "--- Saltando al jugador " << n_jugador <<" ---\n" << endl;
                     // Actualizar jugada
                     play = to_string(sentido)+to_string(n_reversa)+to_string(color)+"00";
                     close(pipeJugadaWrite[0]);
@@ -287,7 +282,7 @@ int main(int argc, char const *argv[]) {
                     hand.insertar(robada);
                     robada = shared->sacar();
                     hand.insertar(robada);
-                    cout << "Saltando el turno.\n\n";
+                    cout << "--- Saltando el turno ---\n\n";
                     // Actualizar jugada
                     play = to_string(sentido)+to_string(n_reversa)+to_string(color)+"00";
                     close(pipeJugadaWrite[0]);
@@ -313,7 +308,7 @@ int main(int argc, char const *argv[]) {
                     robada = shared->sacar();
                     hand.insertar(robada);
 
-                    cout << "Saltando el turno.\n\n";
+                    cout << "--- Saltando el turno ---\n\n";
                     // Actualizar jugada
                     play = to_string(sentido)+to_string(n_reversa)+to_string(color)+"00";
                     close(pipeJugadaWrite[0]);
@@ -333,7 +328,25 @@ int main(int argc, char const *argv[]) {
             // Imprimir última jugada al jugador actual
             cout << "Última carta jugada: \n";
             showCards(col, num);
-            cout << "\n" << endl;
+            cout << "\n";
+            // Verificar seleccion anterior de color
+            if (num == colores || num == mas4) {
+                col = color;
+                cout << "El color actual es: ";
+                if (color == azul) {
+                    cout << "[Azul]\n" << endl;
+                }
+                if (color == amarillo) {
+                    cout << "[Amarillo]\n" << endl;
+                }
+                if (color == rojo) {
+                    cout << "[Rojo]\n" << endl;
+                }
+                if (color == verde) {
+                    cout << "[Verde]\n" << endl;
+                }       
+            }
+            cout <<  endl;
 
             // Mostrar mano
             cout << "Sus cartas actuales son: \n" << endl;
@@ -424,7 +437,7 @@ int main(int argc, char const *argv[]) {
                         }
                     }
                     if (!estado_robo) {
-                        cout << "\nUsted jugó: \n";
+                        cout << "\n\nUsted jugó: \n";
                         showCards(col_aux, num_aux);
                         cout << "\n" << endl;
                     }
@@ -462,6 +475,58 @@ int main(int argc, char const *argv[]) {
                         }
                         else if (num_aux == mas4) {
                             estado_jugada = 2;
+                            while (true) {
+                                cout << "Elija color para continuar: \n";
+                                cout << "(1) Azul\n";
+                                cout << "(2) Rojo\n";
+                                cout << "(3) Verde\n";
+                                cout << "(4) Amarillo\n" << endl;
+                                string respuesta;
+                                getline(cin, respuesta);
+                                if (respuesta.length()>3) {
+                                    cout << "Opción inválida, escoja nuevamente. \n\n";
+                                    continue;
+                                }
+                                opcion = stoi(respuesta);
+                                if (opcion > 4 || opcion < 1) {
+                                    cout << "Opción inválida, escoja nuevamente. \n\n";
+                                    continue;
+                                }
+                                else {
+                                    color = opcion-1;
+                                    break;
+                                }
+                            }
+                        }
+                        else if (num_aux == salto) {
+                            estado_jugada = 2;
+                        }
+                        else if (num == reversa) {
+                            sentido = (sentido+1)%2;
+                        }
+                        else if (num_aux == colores) {
+                            while (true) {
+                                cout << "Elija color para continuar: \n";
+                                cout << "(1) Azul\n";
+                                cout << "(2) Rojo\n";
+                                cout << "(3) Verde\n";
+                                cout << "(4) Amarillo\n" << endl;
+                                string respuesta;
+                                getline(cin, respuesta);
+                                if (respuesta.length()>3) {
+                                    cout << "Opción inválida, escoja nuevamente. \n\n";
+                                    continue;
+                                }
+                                opcion = stoi(respuesta);
+                                if (opcion > 4 || opcion < 1) {
+                                    cout << "Opción inválida, escoja nuevamente. \n\n";
+                                    continue;
+                                }
+                                else {
+                                    color = opcion-1;
+                                    break;
+                                }
+                            }
                         }
                     }
                 }
