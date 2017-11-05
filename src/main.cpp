@@ -191,12 +191,17 @@ int main(int argc, char const *argv[]) {
     int estado_jugada;
     string play;
     while (!salir) {
-        sleep(1);
+        //sleep(1);
 
         // Leer del pipe correspondiente
         close(pipeRead[1]);
         read(pipeRead[0], turno, 1);
         estado_turno = atoi(turno);
+
+        // Estado de término
+        if (estado_turno == 3) {
+            break;
+        }
 
         // Si le toca al jugador
         if (estado_turno == 1 || estado_turno == 2) {
@@ -215,6 +220,8 @@ int main(int argc, char const *argv[]) {
             n_reversa = stoi(play.substr(1, 1));
             color = stoi(play.substr(2, 1));
             estado_jugada = stoi(play.substr(3, 2));
+            // Llevar cuenta de tamaño
+            int tam = shared->getSize();
             // Avanzar al jugador
             if (estado_turno != 2 && sentido==1 && n_reversa > 0) {
                 n_reversa--;
@@ -257,8 +264,20 @@ int main(int argc, char const *argv[]) {
                     cout << "Lo siento jugador " << n_jugador << ", la última carta fue +2.\n";
                     cout << "Robando 2 cartas... \n";
                     Carta robada = shared->sacar();
+                    if (tam-1 == 0) {
+                        cout << "\nSe acabaron las cartas.\n";
+                        cout << "Juego terminado en empate!\n";
+                        salir = 1;
+                        break;
+                    }
                     hand.insertar(robada);
                     robada = shared->sacar();
+                    if (tam-1 == 0) {
+                        cout << "\nSe acabaron las cartas.\n";
+                        cout << "Juego terminado en empate!\n";
+                        salir = 1;
+                        break;
+                    }
                     hand.insertar(robada);
                     cout << "--- Saltando el turno ---\n\n";
                     // Actualizar jugada
@@ -282,12 +301,36 @@ int main(int argc, char const *argv[]) {
                     cout << "Lo siento jugador " << n_jugador << ", la última carta fue +4.\n";
                     cout << "Robando 4 cartas... \n";
                     Carta robada = shared->sacar();
+                    if (tam-1 == 0) {
+                        cout << "\nSe acabaron las cartas.\n";
+                        cout << "Juego terminado en empate!\n";
+                        salir = 1;
+                        break;
+                    }
                     hand.insertar(robada);
                     robada = shared->sacar();
+                    if (tam-1 == 0) {
+                        cout << "\nSe acabaron las cartas.\n";
+                        cout << "Juego terminado en empate!\n";
+                        salir = 1;
+                        break;
+                    }
                     hand.insertar(robada);
                     robada = shared->sacar();
+                    if (tam-1 == 0) {
+                        cout << "\nSe acabaron las cartas.\n";
+                        cout << "Juego terminado en empate!\n";
+                        salir = 1;
+                        break;
+                    }
                     hand.insertar(robada);
                     robada = shared->sacar();
+                    if (tam-1 == 0) {
+                        cout << "\nSe acabaron las cartas.\n";
+                        cout << "Juego terminado en empate!\n";
+                        salir = 1;
+                        break;
+                    }
                     hand.insertar(robada);
 
                     cout << "--- Saltando el turno ---\n\n";
@@ -306,6 +349,8 @@ int main(int argc, char const *argv[]) {
             cout << "****************************************\n";
             cout << "****** Turno del jugador número " << n_jugador << " ******\n";
             cout << "****************************************\n\n";
+            // Imprimir cartas restantes
+            cout << "Quedan "<<tam<<" carta(s).\n\n";
 
             // Imprimir última jugada al jugador actual
             cout << "Última carta jugada: \n";
@@ -398,6 +443,12 @@ int main(int argc, char const *argv[]) {
                     // Sacar carta
                     cout << "Robando carta... \n";
                     Carta robada = shared->sacar();
+                    if (tam-1 == 0) {
+                        cout << "\nSe acabaron las cartas.\n";
+                        cout << "Juego terminado en empate!\n";
+                        salir = 1;
+                        break;
+                    }
                     int col_aux = robada.getColor();
                     int num_aux = robada.getNum();
                     hand.insertar(robada);
@@ -519,6 +570,12 @@ int main(int argc, char const *argv[]) {
                         // Robar adicional
                         cout << "Robando carta... \n";
                         Carta robada = shared->sacar();
+                        if (tam-1 == 0) {
+                            cout << "\nSe acabaron las cartas.\n";
+                            cout << "Juego terminado en empate!\n";
+                            salir = 1;
+                        break;
+                        }
                         int col_aux = robada.getColor();
                         int num_aux = robada.getNum();
                         hand.insertar(robada);
@@ -606,14 +663,23 @@ int main(int argc, char const *argv[]) {
             }
         }
     }
+    // Comunicar término
+    close(pipeWrite[0]);
+    write(pipeWrite[1], "3", 1);
     
     // Liberar memoria
+    /*cout << "Liberando" << endl;
     free(pipeRead);
+    cout << "pipeReadLiberado" << endl;
     free(pipeWrite);
+    cout << "pipeWriteLiberado" << endl;
     free(pipeJugadaRead);
+    cout << "pipeJugadaRead" << endl;
     free(pipeJugadaWrite);
+    cout << "pipeJugadaWrite" << endl;
     hand.borrar();
-    // Liberar memoria compartida
+    cout << "mano borrada" << endl;
+    // Liberar memoria compartida*/
     if (pid != 0) {
         munmap(shared, sizeof(Carta)*108+sizeof(Mazo));
         munmap(last_card, sizeof(Carta));
