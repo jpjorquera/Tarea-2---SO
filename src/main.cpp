@@ -491,14 +491,13 @@ int main(int argc, char const *argv[]) {
                         break;
                     }
                     // Devolver estado de UNO
-                    if (!p1 && n_jugador==1) { p1 = 0; }
-                    if (!p2 && n_jugador==2) { p2 = 0; }
-                    if (!p3 && n_jugador==3) { p3 = 0; }
-                    if (!p4 && n_jugador==4) { p4 = 0; }
+                    if (!p1 && n_jugador==1) { p1 = 0;}
+                    if (!p2 && n_jugador==2) { p2 = 0;}
+                    if (!p3 && n_jugador==3) { p3 = 0;}
+                    if (!p4 && n_jugador==4) { p4 = 0;}
                     
                     int col_aux = robada.getColor();
                     int num_aux = robada.getNum();
-                    hand.insertar(robada);
                     showCards(col_aux, num_aux);
                     cout << "\n" << endl;
                     estado_robo = 1;
@@ -532,6 +531,7 @@ int main(int argc, char const *argv[]) {
                             }
                             else if (opcion == 2){
                                 cout << "Poniéndola en la mano...\n" << endl;
+                                cout << "\n";
                                 hand.insertar(robada);
                                 estado_robo = 1;
                                 break;
@@ -540,6 +540,9 @@ int main(int argc, char const *argv[]) {
                                 cout << "Opción errónea, escoja nuevamente" << endl;
                             }
                         }
+                    }
+                    else{
+                        hand.insertar(robada);
                     }
                     if (!estado_robo) {
                         // Actualizar carta jugada
@@ -580,7 +583,7 @@ int main(int argc, char const *argv[]) {
                             estado_jugada = 2;
                         }
                         else if (num_aux == reversa) {
-                            cout << "Revirtiendo en carta robada...\n" << endl;
+                            cout << "Revirtiendo...\n" << endl;
                             sentido = (sentido+1)%2;
                             n_reversa = 2;
                         }
@@ -638,6 +641,12 @@ int main(int argc, char const *argv[]) {
                             salir = 1;
                         break;
                         }
+                        // Devolver estado de UNO
+                        if (!p1 && n_jugador==1) { p1 = 0;}
+                        if (!p2 && n_jugador==2) { p2 = 0;}
+                        if (!p3 && n_jugador==3) { p3 = 0;}
+                        if (!p4 && n_jugador==4) { p4 = 0;}
+                        // Mostrar robada
                         int col_aux = robada.getColor();
                         int num_aux = robada.getNum();
                         hand.insertar(robada);
@@ -645,6 +654,19 @@ int main(int argc, char const *argv[]) {
                         cout << "\n" << endl;
                     }
                     else {
+                        // Verificar si ganó
+                        int ganador = hand.largo();
+                        if (!ganador) {
+                            cout << "\n" << endl;
+                            cout << ":::::::::::::::::::::::::::::::::::::::::::::::::::\n";
+                            cout << ":::::::::::  Felicitaciones Jugador "<<n_jugador<<"!  :::::::::::\n";
+                            cout << ":::::::::::    Ha ganado la partida.    :::::::::::\n";
+                            cout << ":::::::::::::::::::::::::::::::::::::::::::::::::::\n";
+                            cout << endl;
+                            salir = 1;
+                            break;
+                        }
+
                         // Actualizar carta jugada
                         last_card->setNum(num_aux);
                         last_card->setColor(col_aux);
@@ -682,7 +704,7 @@ int main(int argc, char const *argv[]) {
                             estado_jugada = 2;
                         }
                         else if (num_aux == reversa) {
-                            cout << "Revirtiendo en jugada normal...\n" << endl;
+                            cout << "Revirtiendo...\n" << endl;
                             sentido = (sentido+1)%2;
                             n_reversa = 2;
                         }
