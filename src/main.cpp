@@ -143,8 +143,8 @@ int main(int argc, char const *argv[]) {
         //**********************************//
         //**********************************//
         // Testeo
-        num = mas4;
-        col = negro;
+        //num = mas4;
+        //col = negro;
         //**********************************//
         //**********************************//
         //**********************************//
@@ -352,7 +352,7 @@ int main(int argc, char const *argv[]) {
             }
             // Verificar mano por cartas jugables
             int tieneCartas = 1;
-            if (!checkAvailable(hand, col, num) && estado_turno!=2) {
+            if (!checkAvailable(hand, col, num) && estado_turno!=2 && color != 8) {
                 cout << "(" << i << ") Robar carta\n"; 
                 tieneCartas = 0;
             }
@@ -510,7 +510,7 @@ int main(int argc, char const *argv[]) {
                     cout << "\n" << endl;
 
                     // Verificar carta jugada
-                    if (!checkRight(col, num, col_aux, num_aux) && estado_turno!=2){
+                    if (!checkRight(col, num, col_aux, num_aux) && estado_turno!=2 && color!=8){
                         // Carta errónea, devolviendo
                         cout << "-X-X-X- Carta equivocada, debe robar -X-X-X-\n";
                         // Devolver carta
