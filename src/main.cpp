@@ -277,7 +277,7 @@ int main(int argc, char const *argv[]) {
                 if (estado_jugada == 1) {
                     // Robar cartas
                     cout << "Lo siento jugador " << n_jugador << ", la última carta fue +2.\n";
-                    cout << "Robando 2 carta(s)... \n";
+                    cout << "Robando 2 cartas... \n";
                     Carta robada = shared->sacar();
                     hand.insertar(robada);
                     robada = shared->sacar();
@@ -298,7 +298,7 @@ int main(int argc, char const *argv[]) {
                 if (estado_jugada == 1) {
                     // Robar cartas
                     cout << "Lo siento jugador " << n_jugador << ", la última carta fue +4.\n";
-                    cout << "Robando 4 carta(s)... \n";
+                    cout << "Robando 4 cartas... \n";
                     Carta robada = shared->sacar();
                     hand.insertar(robada);
                     robada = shared->sacar();
@@ -334,16 +334,16 @@ int main(int argc, char const *argv[]) {
                 col = color;
                 cout << "El color actual es: ";
                 if (color == azul) {
-                    cout << "[Azul]\n" << endl;
+                    cout << "[Azul]\n";
                 }
                 if (color == amarillo) {
-                    cout << "[Amarillo]\n" << endl;
+                    cout << "[Amarillo]\n";
                 }
                 if (color == rojo) {
-                    cout << "[Rojo]\n" << endl;
+                    cout << "[Rojo]\n";
                 }
                 if (color == verde) {
-                    cout << "[Verde]\n" << endl;
+                    cout << "[Verde]\n";
                 }       
             }
             cout <<  endl;
@@ -364,12 +364,13 @@ int main(int argc, char const *argv[]) {
             // Verificar mano por cartas jugables
             int tieneCartas = 1;
             if (!checkAvailable(hand, col, num)) {
-                cout << "(" << i << ") Robar carta"; 
+                cout << "(" << i << ") Robar carta\n"; 
                 tieneCartas = 0;
             }
             else {
-                //i--;
+                i--;
             }
+            //cout << "i al salir:" << i;
             cout << endl;
             
             
@@ -405,7 +406,7 @@ int main(int argc, char const *argv[]) {
 
                 // Caso de robar carta
                 int estado_robo = 0;
-                if (opcion == i) {
+                if (!tieneCartas && opcion == i) {
                     cout << "Robando carta... \n";
                     Carta robada = shared->sacar();
                     int col_aux = robada.getColor();
@@ -427,6 +428,7 @@ int main(int argc, char const *argv[]) {
                                 break;
                             }
                             else if (opcion == 2){
+                                cout << "Poniéndola en la mano...\n" << endl;
                                 hand.insertar(robada);
                                 estado_robo = 1;
                                 break;
@@ -437,9 +439,70 @@ int main(int argc, char const *argv[]) {
                         }
                     }
                     if (!estado_robo) {
-                        cout << "\n\nUsted jugó: \n";
+                        cout << "\nUsted jugó: \n";
                         showCards(col_aux, num_aux);
                         cout << "\n" << endl;
+                        if (num_aux == mas2) {
+                            estado_jugada = 2;
+                        }
+                        else if (num_aux == mas4) {
+                            estado_jugada = 2;
+                            while (true) {
+                                cout << "Elija color para continuar: \n";
+                                cout << "(1) Azul\n";
+                                cout << "(2) Rojo\n";
+                                cout << "(3) Verde\n";
+                                cout << "(4) Amarillo" << endl;
+                                string respuesta;
+                                getline(cin, respuesta);
+                                if (respuesta.length()>3) {
+                                    cout << "Opción inválida, escoja nuevamente. \n\n";
+                                    continue;
+                                }
+                                opcion = stoi(respuesta);
+                                if (opcion > 4 || opcion < 1) {
+                                    cout << "Opción inválida, escoja nuevamente. \n\n";
+                                    continue;
+                                }
+                                else {
+                                    cout << endl;
+                                    color = opcion-1;
+                                    break;
+                                }
+                            }
+                        }
+                        else if (num_aux == salto) {
+                            estado_jugada = 2;
+                        }
+                        else if (num == reversa) {
+                            sentido = (sentido+1)%2;
+                            n_reversa = 2;
+                        }
+                        else if (num_aux == colores) {
+                            while (true) {
+                                cout << "Elija color para continuar: \n";
+                                cout << "(1) Azul\n";
+                                cout << "(2) Rojo\n";
+                                cout << "(3) Verde\n";
+                                cout << "(4) Amarillo" << endl;
+                                string respuesta;
+                                getline(cin, respuesta);
+                                if (respuesta.length()>3) {
+                                    cout << "Opción inválida, escoja nuevamente. \n\n";
+                                    continue;
+                                }
+                                opcion = stoi(respuesta);
+                                if (opcion > 4 || opcion < 1) {
+                                    cout << "Opción inválida, escoja nuevamente. \n\n";
+                                    continue;
+                                }
+                                else {
+                                    cout << endl;
+                                    color = opcion-1;
+                                    break;
+                                }
+                            }
+                        }
                     }
 
                 }
@@ -457,11 +520,15 @@ int main(int argc, char const *argv[]) {
                     if (!checkRight(col, num, col_aux, num_aux)){
                         // Carta errónea, devolviendo
                         cout << "-X-X-X- Carta equivocada, debe robar -X-X-X-\n";
+                        // Devolver carta
+                        cout << "Devolviéndola a la mano. \n";
                         hand.insertar(elegida);
+                        // Robar adicional
                         cout << "Robando carta... \n";
                         Carta robada = shared->sacar();
                         int col_aux = robada.getColor();
                         int num_aux = robada.getNum();
+                        hand.insertar(robada);
                         showCards(col_aux, num_aux);
                         cout << "\n" << endl;
                     }
@@ -480,7 +547,7 @@ int main(int argc, char const *argv[]) {
                                 cout << "(1) Azul\n";
                                 cout << "(2) Rojo\n";
                                 cout << "(3) Verde\n";
-                                cout << "(4) Amarillo\n" << endl;
+                                cout << "(4) Amarillo" << endl;
                                 string respuesta;
                                 getline(cin, respuesta);
                                 if (respuesta.length()>3) {
@@ -493,6 +560,7 @@ int main(int argc, char const *argv[]) {
                                     continue;
                                 }
                                 else {
+                                    cout << endl;
                                     color = opcion-1;
                                     break;
                                 }
@@ -503,6 +571,7 @@ int main(int argc, char const *argv[]) {
                         }
                         else if (num == reversa) {
                             sentido = (sentido+1)%2;
+                            n_reversa = 2;
                         }
                         else if (num_aux == colores) {
                             while (true) {
@@ -510,7 +579,7 @@ int main(int argc, char const *argv[]) {
                                 cout << "(1) Azul\n";
                                 cout << "(2) Rojo\n";
                                 cout << "(3) Verde\n";
-                                cout << "(4) Amarillo\n" << endl;
+                                cout << "(4) Amarillo" << endl;
                                 string respuesta;
                                 getline(cin, respuesta);
                                 if (respuesta.length()>3) {
@@ -523,6 +592,7 @@ int main(int argc, char const *argv[]) {
                                     continue;
                                 }
                                 else {
+                                    cout << endl;
                                     color = opcion-1;
                                     break;
                                 }
