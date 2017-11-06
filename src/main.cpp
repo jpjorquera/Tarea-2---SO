@@ -289,10 +289,10 @@ int main(int argc, char const *argv[]) {
                         break;
                     }
                     // Devolver estado de UNO
-                    if (!p1 && n_jugador==1) { p1 = 0; }
-                    if (!p2 && n_jugador==2) { p2 = 0; }
-                    if (!p3 && n_jugador==3) { p3 = 0; }
-                    if (!p4 && n_jugador==4) { p4 = 0; }
+                    if (p1 && n_jugador==1) { p1 = 0; }
+                    if (p2 && n_jugador==2) { p2 = 0; }
+                    if (p3 && n_jugador==3) { p3 = 0; }
+                    if (p4 && n_jugador==4) { p4 = 0; }
                     hand.insertar(robada);
                     cout << "--- Saltando el turno ---\n\n";
                     // Actualizar jugada
@@ -349,10 +349,10 @@ int main(int argc, char const *argv[]) {
                     }
                     hand.insertar(robada);
                     // Devolver estado de UNO
-                    if (!p1 && n_jugador==1) { p1 = 0; }
-                    if (!p2 && n_jugador==2) { p2 = 0; }
-                    if (!p3 && n_jugador==3) { p3 = 0; }
-                    if (!p4 && n_jugador==4) { p4 = 0; }
+                    if (p1 && n_jugador==1) { p1 = 0; }
+                    if (p2 && n_jugador==2) { p2 = 0; }
+                    if (p3 && n_jugador==3) { p3 = 0; }
+                    if (p4 && n_jugador==4) { p4 = 0; }
 
                     cout << "--- Saltando el turno ---\n\n";
                     // Actualizar jugada
@@ -491,10 +491,10 @@ int main(int argc, char const *argv[]) {
                         break;
                     }
                     // Devolver estado de UNO
-                    if (!p1 && n_jugador==1) { p1 = 0;}
-                    if (!p2 && n_jugador==2) { p2 = 0;}
-                    if (!p3 && n_jugador==3) { p3 = 0;}
-                    if (!p4 && n_jugador==4) { p4 = 0;}
+                    if (p1 && n_jugador==1) { p1 = 0;}
+                    if (p2 && n_jugador==2) { p2 = 0;}
+                    if (p3 && n_jugador==3) { p3 = 0;}
+                    if (p4 && n_jugador==4) { p4 = 0;}
                     
                     int col_aux = robada.getColor();
                     int num_aux = robada.getNum();
@@ -642,10 +642,10 @@ int main(int argc, char const *argv[]) {
                         break;
                         }
                         // Devolver estado de UNO
-                        if (!p1 && n_jugador==1) { p1 = 0;}
-                        if (!p2 && n_jugador==2) { p2 = 0;}
-                        if (!p3 && n_jugador==3) { p3 = 0;}
-                        if (!p4 && n_jugador==4) { p4 = 0;}
+                        if (p1 && n_jugador==1) { p1 = 0;}
+                        if (p2 && n_jugador==2) { p2 = 0;}
+                        if (p3 && n_jugador==3) { p3 = 0;}
+                        if (p4 && n_jugador==4) { p4 = 0;}
                         // Mostrar robada
                         int col_aux = robada.getColor();
                         int num_aux = robada.getNum();
