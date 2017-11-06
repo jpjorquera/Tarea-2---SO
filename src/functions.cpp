@@ -2,6 +2,7 @@
 using namespace std;
 #include "../include/header.h"
 
+// Imprimir Color y Número de Carta
 void showCards(int color, int numero) {
 	switch (color) {
                 case azul:
@@ -40,6 +41,7 @@ void showCards(int color, int numero) {
             }
 }
 
+// Verificar cartas jugables en la mano
 int checkAvailable(Mano hand, int color_actual, int numero_actual) {
 	list<Carta>::iterator it;
 	for (it = hand.cartas.begin(); it != hand.cartas.end(); it++) {
@@ -58,6 +60,8 @@ int checkAvailable(Mano hand, int color_actual, int numero_actual) {
     }
 	return 0;
 }
+
+// Verificar jugada correcta
 int checkRight(int color_actual, int numero_actual, int color_deseado, int num_deseado) {
     if (color_deseado == negro) {
         return 1;
