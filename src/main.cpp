@@ -144,7 +144,7 @@ int main(int argc, char const *argv[]) {
         //**********************************//
         //**********************************//
         // Testeo
-        //num = mas4;
+        //num = colores;
         //col = negro;
         //**********************************//
         //**********************************//
@@ -398,6 +398,7 @@ int main(int argc, char const *argv[]) {
             showCards(col, num);
             cout << "\n";
             // Verificar seleccion anterior de color
+            int estado_color=1;
             if (num == colores || num == mas4) {
                 // Si no es turno inicial
                 if (estado_turno != 2 && color != 8) {
@@ -419,6 +420,7 @@ int main(int argc, char const *argv[]) {
                 // Turno inicial
                 else {
                     cout << "Para elegir color, simplemente juegue la carta deseada.\n";
+                    estado_color=0;
                 } 
             }
             cout <<  endl;
@@ -626,7 +628,7 @@ int main(int argc, char const *argv[]) {
                     cout << "\n" << endl;
 
                     // Verificar carta jugada
-                    if (!checkRight(col, num, col_aux, num_aux) && color!=8){
+                    if (!checkRight(col, num, col_aux, num_aux) && color!=8 && estado_color){
                         // Carta errónea, devolviendo
                         cout << "-X-X-X- Carta equivocada, debe robar -X-X-X-\n\n";
                         // Devolver carta
