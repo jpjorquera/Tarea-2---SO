@@ -628,7 +628,7 @@ int main(int argc, char const *argv[]) {
                     cout << "\n" << endl;
 
                     // Verificar carta jugada
-                    if (!checkRight(col, num, col_aux, num_aux) && color!=8 && estado_color){
+                    if (!checkRight(col, num, col_aux, num_aux) && estado_color){
                         // Carta errónea, devolviendo
                         cout << "-X-X-X- Carta equivocada, debe robar -X-X-X-\n\n";
                         // Devolver carta
@@ -769,8 +769,11 @@ int main(int argc, char const *argv[]) {
         }
     }
     // Comunicar término
-    close(pipeWrite[0]);
-    write(pipeWrite[1], "3", 1);
+    try {
+        close(pipeWrite[0]);
+        write(pipeWrite[1], "3", 1);
+    }
+    catch (...) {}
     
     // Liberar memoria
     /*cout << "Liberando en jugador "<<n_jugador << endl;
